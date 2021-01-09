@@ -1,3 +1,7 @@
+/**
+@file n64.c
+@brief This file contains functions to handle the Nintendo 64 controller protocol (and its sister, the GameCube protocol).
+*/
 #include <stdint.h>
 #include <string.h>
 #include "n64.h"
@@ -12,6 +16,7 @@ static void SendByte(unsigned char b);
 // N64 data pin is p1_d2
 #define N64_READ (P1_DATA_2_GPIO_Port->IDR & P1_DATA_2_Pin)
 
+//! Read a
 uint32_t readCommand()
 {
 	uint8_t retVal;
@@ -49,6 +54,7 @@ uint32_t readCommand()
     }
 }
 
+//! Undocumented.
 static uint8_t GetMiddleOfPulse()
 {
 	uint8_t ct = 0;
@@ -82,6 +88,7 @@ static uint8_t GetMiddleOfPulse()
     return N64_READ ? 1U : 0U;
 }
 
+//! Undocumented.
 void SendStop()
 {
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin<<16;
@@ -89,6 +96,7 @@ void SendStop()
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin;
 }
 
+//! Undocumented.
 void SendIdentityN64()
 {
     // reply 0x05, 0x00, 0x02
@@ -98,23 +106,25 @@ void SendIdentityN64()
     SendStop();
 }
 
+//! Send a 1 bit to the N64: 1 uS low, 3 uS high.
 void write_1()
 {
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin<<16;
 	my_wait_us_asm(1);
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin;
-    my_wait_us_asm(3);
+  my_wait_us_asm(3);
 }
 
+//! Send a 0 bit to the N64: 3 uS low, 1 uS high.
 void write_0()
 {
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin<<16;
 	my_wait_us_asm(3);
 	P1_DATA_2_GPIO_Port->BSRR = P1_DATA_2_Pin;
-    my_wait_us_asm(1);
+  my_wait_us_asm(1);
 }
 
-// send a byte from LSB to MSB (proper serialization)
+//! Send a byte to the N64 from LSB to MSB (proper serialization)
 static void SendByte(unsigned char b)
 {
     for(int i = 7;i >= 0;i--) // send all 8 bits, one at a time
@@ -130,6 +140,7 @@ static void SendByte(unsigned char b)
     }
 }
 
+//! Undocumented.
 void SendRunDataN64(N64ControllerData n64data)
 {
 	unsigned long data = 0;
@@ -155,6 +166,7 @@ void SendRunDataN64(N64ControllerData n64data)
     SendStop();
 }
 
+//! Undocumented.
 void SendControllerDataN64(unsigned long data)
 {
     // send one byte at a time from MSB to LSB
@@ -178,6 +190,9 @@ void SendControllerDataN64(unsigned long data)
     SendStop();
 }
 
+/**** The below functions extend the N64 protocol to handle GameCube signalling. ****/
+
+//! Undocumented.
 void SendRunDataGC(GCControllerData gcdata)
 {
 	uint64_t data = 0;
@@ -203,6 +218,7 @@ void SendRunDataGC(GCControllerData gcdata)
     SendStop();
 }
 
+//! Undocumented.
 void SendControllerDataGC(uint64_t data)
 {
     unsigned int size = sizeof(data); // should be 8 bytes
@@ -225,6 +241,7 @@ void SendControllerDataGC(uint64_t data)
     SendStop();
 }
 
+//! Undocumented.
 void SendIdentityGC()
 {
     SendByte(0x09);
@@ -233,6 +250,7 @@ void SendIdentityGC()
     SendStop();
 }
 
+//! Undocumented.
 void SendOriginGC()
 {
 	GCControllerData gc_data;

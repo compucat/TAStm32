@@ -1,3 +1,7 @@
+/**
+@file TASRun.c
+@brief TODO document me
+*/
 #include <stdlib.h>
 #include <string.h>
 #include "n64.h"
@@ -11,14 +15,15 @@
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 
-// Local definition of tasrun structure
+//! Local definition of tasrun structure
 TASRun tasruns;
 
-// Global pointer to it
+//! Global pointer to it
 TASRun *tasrun = &tasruns;
 
 extern RunDataArray *dataptr;
 
+//! Undocumented.
 RunDataArray *GetNextFrame()
 {
 	if (tasrun->size == 0) // in case of buffer underflow
@@ -42,6 +47,7 @@ RunDataArray *GetNextFrame()
 	return retval;
 }
 
+//! Undocumented.
 uint8_t AddTransition(TransitionType type, uint32_t frameNumber)
 {
 	int x = 0;
@@ -60,6 +66,7 @@ uint8_t AddTransition(TransitionType type, uint32_t frameNumber)
 	return 0; // failure: no room to add transition
 }
 
+//! Undocumented.
 uint8_t TASRunIncrementFrameCount()
 {
 	tasrun->frameCount++;
@@ -99,6 +106,7 @@ uint8_t TASRunIncrementFrameCount()
 	return 0;
 }
 
+//! Undocumented.
 void TASRunSetClockFix(uint8_t cf)
 {
 	if (cf > 1)
@@ -111,11 +119,13 @@ void TASRunSetClockFix(uint8_t cf)
 	}
 }
 
+//! Undocumented.
 uint8_t TASRunGetClockFix()
 {
 	return (tasrun->clockFix != 0) ? 1 : 0;
 }
 
+//! Undocumented.
 void ClearRunData()
 {
 	memset(&tasruns, 0, sizeof(tasruns));
@@ -124,6 +134,7 @@ void ClearRunData()
 	tasruns.end = &(tasruns.runData[MAX_SIZE - 1]);
 }
 
+//! Undocumented.
 void ResetRun()
 {
 	// disable interrupts on latch/clock/data for now
@@ -212,6 +223,7 @@ void ResetRun()
 	ClearRunData();
 }
 
+//! Undocumented.
 static void UpdateRunConfig()
 {
 	tasrun->input_data_size = tasrun->numControllers * tasrun->numDataLanes * tasrun->console_data_size;
@@ -243,18 +255,21 @@ static void UpdateRunConfig()
 	}
 }
 
+//! Undocumented.
 void TASRunSetNumControllers(uint8_t numControllers)
 {
 	tasrun->numControllers = numControllers;
 	UpdateRunConfig();
 }
 
+//! Undocumented.
 void TASRunSetNumDataLanes(uint8_t numDataLanes)
 {
 	tasrun->numDataLanes = numDataLanes;
 	UpdateRunConfig();
 }
 
+//! Undocumented.
 void TASRunSetConsole(Console console)
 {
 	tasrun->console = console;
@@ -280,6 +295,7 @@ void TASRunSetConsole(Console console)
 	UpdateRunConfig();
 }
 
+//! Undocumented.
 int ExtractDataAndAddFrame(uint8_t *buffer, uint32_t n)
 {
 	size_t bytesPerInput = tasrun->console_data_size;
@@ -332,6 +348,7 @@ int ExtractDataAndAddFrame(uint8_t *buffer, uint32_t n)
 	return 1;
 }
 
+//! Undocumented.
 void SetN64Mode()
 {
 	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
@@ -343,6 +360,7 @@ void SetN64Mode()
 	HAL_GPIO_Init(P1_DATA_2_GPIO_Port, &GPIO_InitStruct);
 }
 
+//! Undocumented.
 void SetSNESMode()
 {
 	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
@@ -363,6 +381,7 @@ void SetSNESMode()
 
 }
 
+//! Undocumented.
 void SetGENMode()
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -389,6 +408,7 @@ void SetGENMode()
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
+//! Undocumented.
 void SetMultitapMode()
 {
 

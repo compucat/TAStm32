@@ -1,3 +1,7 @@
+/**
+@file serial_interface.c
+@brief Contains routines to communicate with an attached PC over a USB-CDC UART.
+*/
 #include "serial_interface.h"
 
 #include "stm32f4xx_it.h"

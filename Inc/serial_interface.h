@@ -53,9 +53,32 @@ typedef struct
 	uint16_t latch_train_index;
 } serial_interface_state_t;
 
+/**
+
+*/
 void serial_interface_reset();
+
+/**
+
+*/
 void serial_interface_set_output_function(OutputFunction func);
+
+/**
+
+*/
 uint8_t serial_interface_output(uint8_t *buffer, uint16_t n);
+
+/**
+Handle a buffer of serial data received from the USB UART.
+
+TODO: clarify exactly what "act on it" is. This is a behemoth function.
+
+Presumably, this is called by an ISR when sufficient serial data is received.
+TODO: confirm with Ownasaurus.
+
+@param *buffer The incoming buffer of serial data.
+@param n Length of buffer in bytes.
+*/
 void serial_interface_consume(uint8_t *buffer, uint32_t n);
 
 #endif  // __INPUT_PROCESSOR__H
