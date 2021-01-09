@@ -72,7 +72,8 @@ void serial_interface_consume(uint8_t *buffer, uint32_t n)
 						my_wait_us_asm(5);
 						for(int i=0; i<16; i++)
 						{
-							data+= (GPIOB->IDR & V1_LATCH_Pin != 0);
+							//data+= (GPIOB->IDR & V1_DATA_0_Pin != 0);
+							data+= ((GPIOB->IDR & V1_DATA_0_Pin) != 0) << i;
 							GPIOB->BSRR = V1_CLOCK_Pin;
 							my_wait_us_asm(5);
 							GPIOB->BSRR = V1_CLOCK_Pin << 16;
