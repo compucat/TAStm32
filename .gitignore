@@ -1,4 +1,7 @@
+build/
 /Debug/
+docs/html/
+docs/latex/
 /Release/
 !/Release/TAStm32.binary
 *.r08
