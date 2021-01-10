@@ -1,14 +1,13 @@
 #include "serial_interface.h"
 
 #include "stm32f4xx_it.h"
-#include "stm32f4xx_hal.h"
 #include "main.h"
 #include "TASRun.h"
+#include "controller_input.h"
 
 #include <string.h>
 #include <stdlib.h>
-
-void my_wait_us_asm(int n);
+#include <stdbool.h>
 
 // only instance of this, but make callers use access functions
 static serial_interface_state_t instance;
@@ -46,46 +45,16 @@ void serial_interface_consume(uint8_t *buffer, uint32_t n)
 				{
 					//HACK: testing SNES input
 					case 'I': // Set up SNES input on visport 1
-						;
-						GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-						//Reconfigure visport 1 as a SNES controller reader
-						//i.e. clock/latch outputs, data input
-						GPIO_InitStruct.Pin = V1_CLOCK_Pin | V1_LATCH_Pin;
-						GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-						HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-						memset (&GPIO_InitStruct, 0, sizeof(GPIO_InitTypeDef));
-						GPIO_InitStruct.Pin = V1_DATA_0_Pin | V1_DATA_1_Pin;
-						GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-						GPIO_InitStruct.Pull = GPIO_NOPULL;
-						HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-						GPIOB->BSRR = V1_LATCH_Pin | V1_CLOCK_Pin;
-
-						serial_interface_output((uint8_t*)"OK", 2);
+						if (initVBController(V1_PORT, SNES) == true) serial_interface_output((uint8_t*)"OK", 2);
+						else serial_interface_output((uint8_t*)":(", 2);
 						break;
 					case 'J': // Request frame of data from controller
 						;
-						uint16_t data=0;
-						GPIOB->BSRR = V1_LATCH_Pin;
-						my_wait_us_asm(5);
-						GPIOB->BSRR = V1_LATCH_Pin << 16;
-						my_wait_us_asm(5);
-						for(int i=0; i<16; i++)
-						{
-							//data+= (GPIOB->IDR & V1_DATA_0_Pin != 0);
-							data+= ((GPIOB->IDR & V1_DATA_0_Pin) != 0) << i;
-							GPIOB->BSRR = V1_CLOCK_Pin;
-							my_wait_us_asm(5);
-							GPIOB->BSRR = V1_CLOCK_Pin << 16;
-							my_wait_us_asm(5);
-						}
-						serial_interface_output((uint8_t*)(&data), 2);
-						break;
-
-					case 'K': // Read PORTB
-						;
-						uint16_t portbdata=GPIOB->IDR;
-						serial_interface_output((uint8_t*)(&portbdata), 2);
+						VBControllerData data = readVBController(V1_PORT);
+						volatile uint8_t d[2];
+						d[0]=0xDE;
+						d[1]=0xAD;
+						serial_interface_output(d, 2);
 						break;
 					//END HACK
 					case 'U': // set up latch train for a run
