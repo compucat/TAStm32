@@ -14,6 +14,7 @@ Not yet implemented:
 #include "stm32f4xx_hal.h"
 #include "main.h"
 #include <string.h> //memset?
+#include <stdint.h>
 #include <stdbool.h>
 void my_wait_us_asm(int n);
 

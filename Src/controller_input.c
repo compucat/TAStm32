@@ -20,6 +20,7 @@ bool initVBController(VBPort port, VBControllerType type)
 					GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 					GPIO_InitStruct.Pull = GPIO_NOPULL;
 					HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 					GPIOB->BSRR = V1_LATCH_Pin | V1_CLOCK_Pin;
 					return true;
 					break;

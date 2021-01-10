@@ -43,20 +43,39 @@ void serial_interface_consume(uint8_t *buffer, uint32_t n)
 			case SERIAL_PREFIX:
 				switch(input)
 				{
+
+
 					//HACK: testing SNES input
-					case 'I': // Set up SNES input on visport 1
+					/*case 'I': // Set up SNES input on visport 1
 						if (initVBController(V1_PORT, SNES) == true) serial_interface_output((uint8_t*)"OK", 2);
 						else serial_interface_output((uint8_t*)":(", 2);
-						break;
+						break;*/
 					case 'J': // Request frame of data from controller
 						;
 						VBControllerData data = readVBController(V1_PORT);
-						volatile uint8_t d[2];
-						d[0]=0xDE;
-						d[1]=0xAD;
-						serial_interface_output(d, 2);
+						serial_interface_output((uint8_t*)(&(data.snesbits)), 2);
 						break;
 					//END HACK
+
+					case 'I': // HACK 2: Outsourcing this to initVBController() for some reason fails. Not sure why. 
+						;
+						GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+						//Reconfigure visport 1 as a SNES controller reader
+						//i.e. clock/latch outputs, data input
+						GPIO_InitStruct.Pin = V1_CLOCK_Pin | V1_LATCH_Pin;
+						GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+						HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+						memset (&GPIO_InitStruct, 0, sizeof(GPIO_InitTypeDef));
+						GPIO_InitStruct.Pin = V1_DATA_0_Pin | V1_DATA_1_Pin;
+						GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+						GPIO_InitStruct.Pull = GPIO_NOPULL;
+						HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+						GPIOB->BSRR = V1_LATCH_Pin | V1_CLOCK_Pin;
+
+						serial_interface_output((uint8_t*)"OK", 2);
+						break;
+
 					case 'U': // set up latch train for a run
 						instance.state = SERIAL_TRAIN_RUN;
 						break;
